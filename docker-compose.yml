@@ -1,0 +1,26 @@
+version: "3.9"
+services:
+  container-cron:
+    image: ghcr.io/uomresearchit/container-cron
+    environment:
+      - cron_freq=*/1 * * * *
+      - cron_cmd=date >> /crontest.csv
+  mongo:
+    image: mongo:6.0.2
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD_FILE: ${MONGO_PASS}
+  influxdb:
+    image: influxdb:1.8.10
+    ports:
+      - '8086:8086'
+    volumes:
+      - influxdb-storage:/var/lib/influxdb
+    environment:
+      INFLUXDB_DB: db0
+      INFLUXDB_ADMIN_USER: ${INFLUX_USER}
+      INFLUXDB_ADMIN_PASSWORD: ${INFLUX_PASS}
+volumes:
+  influxdb-storage:
+
