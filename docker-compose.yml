@@ -1,0 +1,59 @@
+version: "3.9"
+services:
+  mcri-frontend:
+    image: ghcr.io/uomresearchit/mcri-frontend
+    depends_on:
+      - swag
+  mcri-backend:
+    image: ghcr.io/uomresearchit/mcri-backend
+    volumes:
+      - ${SWAG_DIR}/etc/letsencrypt/live/mcri.duckdns.org/privkey.pem:/etc/letsencrypt/live/muo-backend.cs.man.ac.uk/privkey.pem
+      - ${SWAG_DIR}/etc/letsencrypt/live/mcri.duckdns.org/fullchain.pem:/etc/letsencrypt/live/muo-backend.cs.man.ac.uk/fullchain.pem
+    depends_on:
+      - swag
+  container-cron:
+    image: ghcr.io/uomresearchit/container-cron
+    environment:
+      - cron_freq=*/1 * * * *
+      - cron_cmd=date >> /crontest.csv
+  mongo:
+    image: mongo:6.0.2
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASS}
+  influxdb:
+    image: influxdb:1.8.10
+    ports:
+      - '8086:8086'
+    volumes:
+      - influxdb-storage:/var/lib/influxdb
+    environment:
+      INFLUXDB_DB: db0
+      INFLUXDB_ADMIN_USER: ${INFLUX_USER}
+      INFLUXDB_ADMIN_PASSWORD: ${INFLUX_PASS}
+  swag:
+    image: lscr.io/linuxserver/swag
+    container_name: swag
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+      - URL=mcri.duckdns.org
+      - SUBDOMAINS=wildcard
+      - VALIDATION=duckdns
+      - DUCKDNSTOKEN=${DUCKDNS_TOKEN}
+      - CERTPROVIDER=zerosslm
+      - EMAIL=oliver.woolland@manchester.ac.uk
+    volumes:
+      - ${SWAG_DIR}:/config
+    ports:
+      - 443:443
+      - 80:80
+    restart: unless-stopped
+  
+
+volumes:
+  influxdb-storage:
