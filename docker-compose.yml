@@ -3,7 +3,10 @@ services:
   mcri-frontend:
     image: ghcr.io/uomresearchit/mcri-frontend
     depends_on:
-      - swag
+      - mcri-backend
+    networks:
+      mcri:
+
   mcri-backend:
     image: ghcr.io/uomresearchit/mcri-backend
     volumes:
@@ -11,18 +14,29 @@ services:
       - ${SWAG_DIR}/etc/letsencrypt/live/mcri.duckdns.org/fullchain.pem:/etc/letsencrypt/live/muo-backend.cs.man.ac.uk/fullchain.pem
     depends_on:
       - swag
-  container-cron:
-    image: ghcr.io/uomresearchit/container-cron
-    environment:
-      - cron_freq=*/1 * * * *
-      - cron_cmd=date >> /crontest.csv
+      - mongo
+      - influx
+    networks:
+      mcri:
+
+  # container-cron:
+  #   image: ghcr.io/uomresearchit/container-cron
+  #   environment:
+  #     - cron_freq=*/1 * * * *
+  #     - cron_cmd=date >> /crontest.csv
+  #   networks:
+  #     mcri:
+
   mongo:
     image: mongo:6.0.2
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASS}
-  influxdb:
+    networks:
+      mcri:
+    
+  influx:
     image: influxdb:1.8.10
     ports:
       - '8086:8086'
@@ -32,6 +46,9 @@ services:
       INFLUXDB_DB: db0
       INFLUXDB_ADMIN_USER: ${INFLUX_USER}
       INFLUXDB_ADMIN_PASSWORD: ${INFLUX_PASS}
+    networks:
+      mcri:
+
   swag:
     image: lscr.io/linuxserver/swag
     container_name: swag
@@ -49,11 +66,20 @@ services:
       - EMAIL=oliver.woolland@manchester.ac.uk
     volumes:
       - ${SWAG_DIR}:/config
+    restart: unless-stopped
     ports:
       - 443:443
-      - 80:80
-    restart: unless-stopped
+      - 80:80 
+    networks:
+      mcri:
   
-
 volumes:
   influxdb-storage:
+
+networks:
+  mcri:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 172.31.6.0/24
+         gateway: 172.31.6.1
