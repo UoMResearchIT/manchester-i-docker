@@ -3,7 +3,8 @@ services:
   mcri-frontend:
     image: ghcr.io/uomresearchit/mcri-frontend
     depends_on:
-      - swag
+      - mcri-backend
+
   mcri-backend:
     image: ghcr.io/uomresearchit/mcri-backend
     volumes:
