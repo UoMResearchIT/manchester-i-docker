@@ -10,12 +10,15 @@ services:
   mcri-backend:
     image: ghcr.io/uomresearchit/mcri-backend
     volumes:
-      - ${SWAG_DIR}/etc/letsencrypt/live/mcri.duckdns.org/privkey.pem:/etc/letsencrypt/live/muo-backend.cs.man.ac.uk/privkey.pem
-      - ${SWAG_DIR}/etc/letsencrypt/live/mcri.duckdns.org/fullchain.pem:/etc/letsencrypt/live/muo-backend.cs.man.ac.uk/fullchain.pem
+      - ${SWAG_DIR}/etc/letsencrypt/live/${URL}/privkey.pem:/etc/letsencrypt/live/muo-backend.cs.man.ac.uk/privkey.pem
+      - ${SWAG_DIR}/etc/letsencrypt/live/${URL}/fullchain.pem:/etc/letsencrypt/live/muo-backend.cs.man.ac.uk/fullchain.pem
     depends_on:
-      - swag
-      - mongo
-      - influx
+      swag:
+        condition: service_healthy
+      mongo:
+        condition: service_started
+      influx:
+        condition: service_started
     networks:
       mcri:
 
@@ -58,7 +61,7 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/London
-      - URL=mcri.duckdns.org
+      - URL=${URL}
       - SUBDOMAINS=wildcard
       - VALIDATION=duckdns
       - DUCKDNSTOKEN=${DUCKDNS_TOKEN}
@@ -73,6 +76,11 @@ services:
       - 80:80 
     networks:
       mcri:
+    healthcheck:
+      test: ["CMD", "cat", "/etc/letsencrypt/live/${URL}/privkey.pem"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
   
 volumes:
   influxdb-storage:
