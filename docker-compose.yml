@@ -62,7 +62,7 @@ services:
       - SUBDOMAINS=wildcard
       - VALIDATION=duckdns
       - DUCKDNSTOKEN=${DUCKDNS_TOKEN}
-      - CERTPROVIDER=zerosslm
+      - CERTPROVIDER=zerossl
       - EMAIL=oliver.woolland@manchester.ac.uk
     volumes:
       - ${SWAG_DIR}:/config
