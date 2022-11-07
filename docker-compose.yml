@@ -62,10 +62,11 @@ services:
       - SUBDOMAINS=wildcard
       - VALIDATION=duckdns
       - DUCKDNSTOKEN=${DUCKDNS_TOKEN}
-      - CERTPROVIDER=zerosslm
+      - CERTPROVIDER=zerossl
       - EMAIL=oliver.woolland@manchester.ac.uk
     volumes:
       - ${SWAG_DIR}:/config
+      - ./swag_config/default.conf:/config/nginx/site-confs/default.conf
     restart: unless-stopped
     ports:
       - 443:443
