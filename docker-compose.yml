@@ -39,6 +39,16 @@ services:
       MONGO_INITDB_DATABASE: mcri
     networks:
       mcri:
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_USER}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_PASS}
+      ME_CONFIG_MONGODB_URL: mongodb://${MONGO_USER}:${MONGO_PASS}@mongo:27017/
+    networks:
+      mcri:
     
   influx:
     image: influxdb:1.8.10
@@ -50,7 +60,20 @@ services:
       INFLUXDB_ADMIN_PASSWORD: ${INFLUX_PASS}
     networks:
       mcri:
-
+        
+  chronograf:
+    image: chronograf:latest
+    volumes:
+      - chronograf-storage:/var/lib/chronograf
+    depends_on:
+      - influx
+    environment:
+      - INFLUXDB_URL=http://influx:8086
+      - INFLUXDB_USERNAME=${INFLUX_USER}
+      - INFLUXDB_PASSWORD=${INFLUX_PASS}
+    networks:
+      mcri:
+      
   swag:
     image: lscr.io/linuxserver/swag
     container_name: swag
@@ -83,6 +106,7 @@ services:
   
 volumes:
   influxdb-storage:
+  chronograf-storage:
 
 networks:
   mcri:
