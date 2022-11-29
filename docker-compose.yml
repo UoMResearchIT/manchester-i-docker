@@ -1,5 +1,35 @@
 version: "3.9"
 services:
+  swag:
+    image: lscr.io/linuxserver/swag
+    container_name: swag
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+      - URL=${URL}
+      - SUBDOMAINS=wildcard
+      - VALIDATION=duckdns
+      - DUCKDNSTOKEN=${DUCKDNS_TOKEN}
+      - CERTPROVIDER=zerossl
+      - EMAIL=oliver.woolland@manchester.ac.uk
+    volumes:
+      - ${SWAG_DIR}:/config
+      - ./swag_config/default.conf:/config/nginx/site-confs/default.conf
+    restart: unless-stopped
+    ports:
+      - 443:443
+      - 80:80 
+    networks:
+      mcri:
+    healthcheck:
+      test: ["CMD", "cat", "/etc/letsencrypt/live/${URL}/privkey.pem"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
   mcri-frontend:
     image: ghcr.io/uomresearchit/mcri-frontend
     depends_on:
@@ -21,14 +51,6 @@ services:
         condition: service_started
     networks:
       mcri:
-
-  # container-cron:
-  #   image: ghcr.io/uomresearchit/container-cron
-  #   environment:
-  #     - cron_freq=*/1 * * * *
-  #     - cron_cmd=date >> /crontest.csv
-  #   networks:
-  #     mcri:
 
   mongo:
     image: mongo:6.0.2
@@ -74,36 +96,6 @@ services:
     networks:
       mcri:
       
-  swag:
-    image: lscr.io/linuxserver/swag
-    container_name: swag
-    cap_add:
-      - NET_ADMIN
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/London
-      - URL=${URL}
-      - SUBDOMAINS=wildcard
-      - VALIDATION=duckdns
-      - DUCKDNSTOKEN=${DUCKDNS_TOKEN}
-      - CERTPROVIDER=zerossl
-      - EMAIL=oliver.woolland@manchester.ac.uk
-    volumes:
-      - ${SWAG_DIR}:/config
-      - ./swag_config/default.conf:/config/nginx/site-confs/default.conf
-    restart: unless-stopped
-    ports:
-      - 443:443
-      - 80:80 
-    networks:
-      mcri:
-    healthcheck:
-      test: ["CMD", "cat", "/etc/letsencrypt/live/${URL}/privkey.pem"]
-      interval: 10s
-      timeout: 10s
-      retries: 5
-  
 volumes:
   influxdb-storage:
   chronograf-storage:
