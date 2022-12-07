@@ -28,7 +28,7 @@ services:
       test: ["CMD", "cat", "/etc/letsencrypt/live/${URL}/privkey.pem"]
       interval: 10s
       timeout: 10s
-      retries: 5
+      retries: 20
 
   mcri-frontend:
     image: ghcr.io/uomresearchit/mcri-frontend
