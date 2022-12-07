@@ -2,7 +2,7 @@ version: "3.9"
 services:
   swag:
     image: lscr.io/linuxserver/swag
-    container_name: swag
+    container_name: mcri-swag
     cap_add:
       - NET_ADMIN
     environment:
@@ -32,6 +32,7 @@ services:
 
   mcri-frontend:
     image: ghcr.io/uomresearchit/mcri-frontend
+    container_name: mcri-frontend
     depends_on:
       - mcri-backend
     networks:
@@ -39,6 +40,7 @@ services:
 
   mcri-backend:
     image: ghcr.io/uomresearchit/mcri-backend
+    container_name: mcri-backend
     volumes:
       - ${SWAG_DIR}/etc/letsencrypt/live/${URL}/privkey.pem:/etc/letsencrypt/live/muo-backend.cs.man.ac.uk/privkey.pem
       - ${SWAG_DIR}/etc/letsencrypt/live/${URL}/fullchain.pem:/etc/letsencrypt/live/muo-backend.cs.man.ac.uk/fullchain.pem
@@ -54,6 +56,7 @@ services:
 
   mongo:
     image: mongo:6.0.2
+    container_name: mcri-mongo
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
@@ -64,16 +67,20 @@ services:
 
   mongo-express:
     image: mongo-express
+    container_name: mcri-mongo-express
     restart: always
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_USER}
       ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_PASS}
       ME_CONFIG_MONGODB_URL: mongodb://${MONGO_USER}:${MONGO_PASS}@mongo:27017/
+    depends_on:
+      - mongo
     networks:
       mcri:
     
   influx:
     image: influxdb:1.8.10
+    container_name: mcri-influx
     volumes:
       - influxdb-storage:/var/lib/influxdb
     environment:
@@ -85,6 +92,7 @@ services:
         
   chronograf:
     image: chronograf:latest
+    container_name: mcri-chronograf
     volumes:
       - chronograf-storage:/var/lib/chronograf
     depends_on:
