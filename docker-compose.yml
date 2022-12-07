@@ -106,6 +106,12 @@ services:
       - INFLUXDB_PASSWORD=${INFLUX_PASS}
     networks:
       mcri:
+
+  # galaxy:
+  #   image: galaxy/galaxy-min:latest
+  #   container_name: mcri-galaxy
+  #   networks:
+  #     mcri:
       
 volumes:
   influxdb-storage:
