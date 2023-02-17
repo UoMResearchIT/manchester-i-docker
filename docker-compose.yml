@@ -16,7 +16,7 @@ services:
       - CERTPROVIDER=zerossl
       - EMAIL=oliver.woolland@manchester.ac.uk
     volumes:
-      - ${SWAG_DIR}:/config
+      - swag-keys:/etc/letsencrypt/live/${URL}/../../archive/${URL}/
       - ./swag_config/default.conf:/config/nginx/site-confs/default.conf
     restart: unless-stopped
     ports:
@@ -42,8 +42,7 @@ services:
     image: ghcr.io/uomresearchit/mcri-backend
     container_name: mcri-backend
     volumes:
-      - ${SWAG_DIR}/etc/letsencrypt/live/${URL}/privkey.pem:/etc/letsencrypt/live/muo-backend.cs.man.ac.uk/privkey.pem
-      - ${SWAG_DIR}/etc/letsencrypt/live/${URL}/fullchain.pem:/etc/letsencrypt/live/muo-backend.cs.man.ac.uk/fullchain.pem
+      - swag-keys:/etc/letsencrypt/live/muo-backend.cs.man.ac.uk/
     depends_on:
       swag:
         condition: service_healthy
@@ -107,6 +106,30 @@ services:
     networks:
       mcri:
 
+  # cylc:
+  #   image: ghcr.io/uomresearchit/cylc:latest
+  #   container_name: mcri-cylc
+  #   volumes:
+  #     - ./cylc-workflows:/cylc-workflows
+  #   networks:
+  #     mcri:
+
+  # arisense-data-collector:
+  #   image: ghcr.io/uomresearchit/arisense_data_collector:latest
+  #   container_name: mcri-arisense-data-collector
+  #   environment:
+  #     - INTERVAL_SECONDS=${ARISENSE_INTERVAL_SECONDS}
+  #     - DB_HOST=${INFLUX_HOST}
+  #     - DB_PORT=${INFLUX_PORT}
+  #     - DB_NAME=${INFLUX_DB_NAME}
+  #     - DB_USER=${INFLUX_USER}
+  #     - DB_PASS={INFLUX_PASS}
+  #   depends_on:
+  #     - influx
+  #   networks:
+  #     mcri:
+
+
   # galaxy:
   #   image: galaxy/galaxy-min:latest
   #   container_name: mcri-galaxy
@@ -116,6 +139,7 @@ services:
 volumes:
   influxdb-storage:
   chronograf-storage:
+  swag-keys:
 
 networks:
   mcri:
