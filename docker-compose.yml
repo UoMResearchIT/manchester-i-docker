@@ -16,9 +16,9 @@ services:
       - CERTPROVIDER=zerossl
       - EMAIL=oliver.woolland@manchester.ac.uk
     volumes:
-      - swag-keys:/etc/letsencrypt/live/${URL}/../../archive/${URL}/
+      - ./swag_store:/config
       - ./swag_config/default.conf:/config/nginx/site-confs/default.conf
-    restart: unless-stopped
+    #restart: unless-stopped
     ports:
       - 443:443
       - 80:80 
@@ -41,8 +41,10 @@ services:
   mcri-backend:
     image: ghcr.io/uomresearchit/mcri-backend
     container_name: mcri-backend
+    environment:
+      - MCRI_URL=${URL}
     volumes:
-      - swag-keys:/etc/letsencrypt/live/muo-backend.cs.man.ac.uk/
+      - ./swag_store/etc/letsencrypt//:/etc/letsencrypt/
     depends_on:
       swag:
         condition: service_healthy
@@ -56,7 +58,7 @@ services:
   mongo:
     image: mongo:6.0.2
     container_name: mcri-mongo
-    restart: always
+    #restart: unless-stopped
     volumes:
       - ./mongorestore.sh:/docker-entrypoint-initdb.d/mongorestore.sh
       - ./mcri-seed:/mcri-seed
@@ -70,7 +72,7 @@ services:
   mongo-express:
     image: mongo-express
     container_name: mcri-mongo-express
-    restart: always
+    #restart: unless-stopped
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_USER}
       ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_PASS}
@@ -139,6 +141,7 @@ services:
 volumes:
   influxdb-storage:
   chronograf-storage:
+  swag-config:
   swag-keys:
 
 networks:
