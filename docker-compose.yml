@@ -116,21 +116,34 @@ services:
   #   networks:
   #     mcri:
 
-  # arisense-data-collector:
-  #   image: ghcr.io/uomresearchit/arisense_data_collector:latest
-  #   container_name: mcri-arisense-data-collector
-  #   environment:
-  #     - INTERVAL_SECONDS=${ARISENSE_INTERVAL_SECONDS}
-  #     - DB_HOST=${INFLUX_HOST}
-  #     - DB_PORT=${INFLUX_PORT}
-  #     - DB_NAME=${INFLUX_DB_NAME}
-  #     - DB_USER=${INFLUX_USER}
-  #     - DB_PASS={INFLUX_PASS}
-  #   depends_on:
-  #     - influx
-  #   networks:
-  #     mcri:
-
+  arisense-data-collector:
+    image: ghcr.io/uomresearchit/arisense_data_collector:latest
+    container_name: mcri-arisense-data-collector
+    environment:
+      - INTERVAL_SECONDS=${ARISENSE_INTERVAL_SECONDS}
+      - DB_HOST=${INFLUX_HOST}
+      - DB_PORT=${INFLUX_PORT}
+      - DB_NAME=${INFLUX_DB_NAME}
+      - DB_USER=${INFLUX_USER}
+      - DB_PASS={INFLUX_PASS}
+    depends_on:
+      - influx
+    networks:
+      mcri:
+    command: tail -f /dev/null
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-exec.collect.schedule: "@every 15m"
+      ofelia.job-exec.collect.command: "node arisense.js"
+        
+  ofelia:
+    image: mcuadros/ofelia:latest
+    container_name: mcri-ofelia
+    depends_on:
+      - influx
+    command: daemon --docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
 
   # galaxy:
   #   image: galaxy/galaxy-min:latest
