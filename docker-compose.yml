@@ -46,8 +46,15 @@ services:
     container_name: mcri-backend
     environment:
       - MCRI_URL=${URL}
+      - MONGODB_URI=mongodb://${MONGO_USER}:${MONGO_PASS}@mongo:27017/
+      - INFLUXDB_HOST=${INFLUX_HOST}
+      - INFLUXDB_PORT=${INFLUX_PORT}
+      - INFLUXDB_NAME=${INFLUX_DB_NAME}
+      - INFLUXDB_USER=${INFLUX_USER}
+      - INFLUXDB_PASS=${INFLUX_PASS}
     volumes:
       - ./swag_store/etc/letsencrypt//:/etc/letsencrypt/
+    restart: unless-stopped
     depends_on:
       swag:
         condition: service_healthy
