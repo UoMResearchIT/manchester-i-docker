@@ -126,7 +126,7 @@ services:
       - DB_PORT=${INFLUX_PORT}
       - DB_NAME=${INFLUX_DB_NAME}
       - DB_USER=${INFLUX_USER}
-      - DB_PASS={INFLUX_PASS}
+      - DB_PASS=${INFLUX_PASS}
     depends_on:
       - influx
     networks:
@@ -136,6 +136,45 @@ services:
       ofelia.enabled: "true"
       ofelia.job-exec.collect.schedule: "@every 15m"
       ofelia.job-exec.collect.command: "node arisense.js"
+
+  drakewell-data-collector:
+    image: ghcr.io/uomresearchit/drakewell_data_collector:latest
+    container_name: mcri-drakewell-data-collector
+    environment:
+      - DB_HOST=${INFLUX_HOST}
+      - DB_PORT=${INFLUX_PORT}
+      - DB_NAME=${INFLUX_DB_NAME}
+      - DB_USER=${INFLUX_USER}
+      - DB_PASS=${INFLUX_PASS}
+    depends_on:
+      - influx
+    networks:
+      mcri:
+    command: tail -f /dev/null
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-exec.collect.schedule: "@every 15m"
+      ofelia.job-exec.collect.command: "node drakewell.js"
+
+  vivacity-data-collector:
+    image: ghcr.io/uomresearchit/vivacity_data_collector:latest
+    container_name: mcri-vivacity-data-collector
+    environment:
+      - DB_HOST=${INFLUX_HOST}
+      - DB_PORT=${INFLUX_PORT}
+      - DB_NAME=${INFLUX_DB_NAME}
+      - DB_USER=${INFLUX_USER}
+      - DB_PASS=${INFLUX_PASS}
+    depends_on:
+      - influx
+    networks:
+      mcri:
+    command: tail -f /dev/null
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-exec.collect.schedule: "@every 15m"
+      ofelia.job-exec.collect.command: "node vivacity.js"
+
         
   ofelia:
     image: mcuadros/ofelia:latest
