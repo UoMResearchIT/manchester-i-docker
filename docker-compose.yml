@@ -194,8 +194,6 @@ services:
 volumes:
   influxdb-storage:
   chronograf-storage:
-  swag-config:
-  swag-keys:
 
 networks:
   mcri:
