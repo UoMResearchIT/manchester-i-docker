@@ -118,14 +118,6 @@ services:
     networks:
       mcri:
 
-  # cylc:
-  #   image: ghcr.io/uomresearchit/cylc:latest
-  #   container_name: mcri-cylc
-  #   volumes:
-  #     - ./cylc-workflows:/cylc-workflows
-  #   networks:
-  #     mcri:
-
   arisense-data-collector:
     image: ghcr.io/uomresearchit/arisense_data_collector:latest
     container_name: mcri-arisense-data-collector
