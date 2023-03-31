@@ -120,7 +120,6 @@ services:
     image: ghcr.io/uomresearchit/arisense_data_collector:latest
     container_name: mcri-arisense-data-collector
     environment:
-      - INTERVAL_SECONDS=${ARISENSE_INTERVAL_SECONDS}
       - DB_HOST=${INFLUX_HOST}
       - DB_PORT=${INFLUX_PORT}
       - DB_NAME=${INFLUX_DB_NAME}
