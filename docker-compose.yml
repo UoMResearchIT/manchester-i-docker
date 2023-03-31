@@ -33,6 +33,9 @@ services:
   mcri-frontend:
     image: ghcr.io/uomresearchit/mcri-frontend
     container_name: mcri-frontend
+    environment:
+      - MCRI_FRONTEND=https://${URL}
+      - MCRI_BACKEND=https://backend.${URL}
     depends_on:
       - mcri-backend
     networks:
