@@ -185,11 +185,17 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
-  # galaxy:
-  #   image: galaxy/galaxy-min:latest
-  #   container_name: mcri-galaxy
-  #   networks:
-  #     mcri:
+  galaxy:
+    image: ghcr.io/uomresearchit/mcri-galaxy:latest
+    restart: unless-stopped
+    container_name: mcri-galaxy
+    volumes:
+      - ./galaxy-tools:/galaxy/server/tools/mcri
+      - ./galaxy-config/tool_conf.xml:/galaxy/server/config/tool_conf.xml.sample
+      - ./galaxy-config/job_conf.xml:/galaxy/server/config/job_conf.xml.sample_basic
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      mcri:
       
 volumes:
   influxdb-storage:
