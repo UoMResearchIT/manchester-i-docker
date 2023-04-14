@@ -132,10 +132,6 @@ services:
     networks:
       mcri:
     command: tail -f /dev/null
-    labels:
-      ofelia.enabled: "true"
-      ofelia.job-exec.collect.schedule: "@every 15m"
-      ofelia.job-exec.collect.command: "node arisense.js"
 
   drakewell-data-collector:
     image: ghcr.io/uomresearchit/drakewell_data_collector:latest
@@ -145,16 +141,12 @@ services:
       - DB_PORT=${INFLUX_PORT}
       - DB_NAME=${INFLUX_DB_NAME}
       - DB_USER=${INFLUX_USER}
-      - DB_PASS=${INFLUX_PASS}
+       - DB_PASS=${INFLUX_PASS}
     depends_on:
       - influx
     networks:
       mcri:
     command: tail -f /dev/null
-    labels:
-      ofelia.enabled: "true"
-      ofelia.job-exec.collect.schedule: "@every 15m"
-      ofelia.job-exec.collect.command: "node drakewell.js"
 
   vivacity-data-collector:
     image: ghcr.io/uomresearchit/vivacity_data_collector:latest
@@ -170,11 +162,6 @@ services:
     networks:
       mcri:
     command: tail -f /dev/null
-    labels:
-      ofelia.enabled: "true"
-      ofelia.job-exec.collect.schedule: "@every 15m"
-      ofelia.job-exec.collect.command: "node vivacity.js"
-
         
   ofelia:
     image: mcuadros/ofelia:latest
@@ -190,16 +177,58 @@ services:
     restart: unless-stopped
     container_name: mcri-galaxy
     volumes:
+      - galaxy-storage:/galaxy/server/
       - ./galaxy-tools:/galaxy/server/tools/mcri
       - ./galaxy-config/tool_conf.xml:/galaxy/server/config/tool_conf.xml.sample
       - ./galaxy-config/job_conf.xml:/galaxy/server/config/job_conf.xml.sample_basic
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       mcri:
+
+  galaxy-api-arisense:
+    image: ghcr.io/uomresearchit/mcri-bioblend:latest
+    container_name: mcri-galaxy-api-arisense
+    volumes:
+      - ./galaxy-helpers:/home/helpers
+    command: tail -f /dev/null
+    networks:
+      mcri:
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-exec.collect.schedule: "@every 15m"
+      ofelia.job-exec.collect.command: "python home/helpers/call-workflow.py --api-key 293bea45e5079a37553433e4170db8f9 --server http://mcri-galaxy:8080 --sensor arisense" 
+
+  galaxy-api-drakewell:
+    image: ghcr.io/uomresearchit/mcri-bioblend:latest
+    container_name: mcri-galaxy-api-drakewell
+    volumes:
+      - ./galaxy-helpers:/home/helpers
+    command: tail -f /dev/null
+    networks:
+      mcri:
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-exec.collect.schedule: "@every 15m"
+      ofelia.job-exec.collect.command: "python home/helpers/call-workflow.py --api-key 293bea45e5079a37553433e4170db8f9 --server http://mcri-galaxy:8080 --sensor drakewell" 
+
+  galaxy-api-vivacity:
+    image: ghcr.io/uomresearchit/mcri-bioblend:latest
+    container_name: mcri-galaxy-api-vivacity
+    volumes:
+      - ./galaxy-helpers:/home/helpers
+    command: tail -f /dev/null
+    networks:
+      mcri:
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-exec.collect.schedule: "@every 15m"
+      ofelia.job-exec.collect.command: "python home/helpers/call-workflow.py --api-key 293bea45e5079a37553433e4170db8f9 --server http://mcri-galaxy:8080 --sensor vivacity" 
+
       
 volumes:
   influxdb-storage:
   chronograf-storage:
+  galaxy-storage:
 
 networks:
   mcri:
